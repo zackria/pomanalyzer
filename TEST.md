@@ -27,3 +27,17 @@ or
 
 `node cli.js --markdown --html --output-folder output ./test/Test1.xml`
 
+### Test with NPM Link
+
+`pomanalyzer ./test/Test1.xml`
+
+`pomanalyzer ./test/Test1.xml`
+
+`pomanalyzer --html ./test/Test1.xml`
+
+`pomanalyzer --markdown ./test/Test1.xml`
+
+`pomanalyzer --markdown --html ./test/Test1.xml`
+
+`pomanalyzer --markdown --html --output-folder output ./test/Test1.xml`
+
