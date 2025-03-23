@@ -144,6 +144,10 @@ This package is thoroughly tested with over 90% code coverage to ensure reliabil
 
 ![Test Coverage](./screenshots/CodeCoverage.png)
 
+## Documentation
+
+For more detailed information, please check the [Documentation](DOCUMENTATION.md).
+
 ## Compatibility
 
 Developed and tested with:
