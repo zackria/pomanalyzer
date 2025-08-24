@@ -2,7 +2,7 @@
 
 pomanalyzer is a utility to analyze Apache Maven POM XML files offline. It extracts and formats dependency information, detects duplicate dependencies, and generates reports in various formats.
 
-[![NPM Package](https://img.shields.io/npm/v/pomanalyzer.svg)](https://www.npmjs.com/package/pomanalyzer)
+[![NPM Package](https://img.shields.io/npm/v/pomanalyzer.svg)](https://www.npmjs.com/package/pomanalyzer)  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zackria_pomanalyzer&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zackria_pomanalyzer)
 
 
 ## Features
