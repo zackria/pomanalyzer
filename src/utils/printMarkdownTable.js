@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Generates and saves a Markdown table for the given dependencies.
@@ -17,7 +17,7 @@ export const printMarkdownTable = (dependencies, duplicateDependencies, title, f
 | ${depHeaders.map(() => '---').join(' | ')} |
 ${dependencies.map(dep => `| ${Object.values(dep).join(' | ')} |`).join('\n')}
   `;
-  
+
   let duplicateTable = '';
   if (duplicateDependencies && duplicateDependencies.length > 0) {
     const dupHeaders = Object.keys(duplicateDependencies[0] || {});
@@ -29,7 +29,7 @@ ${dependencies.map(dep => `| ${Object.values(dep).join(' | ')} |`).join('\n')}
 ${duplicateDependencies.map(dep => `| ${Object.values(dep).join(' | ')} |  <!-- duplicate row -->`).join('\n')}
     `;
   }
-  
+
   const markdownContent = `
 # Report
 
@@ -37,9 +37,9 @@ ${dependenciesTable}
 
 ${duplicateTable}
   `;
-  
-  const filePath = path.join(folderPath, `${title.replace(/\s+/g, '_')}_report.md`);
-  
+
+  const filePath = path.join(folderPath, `${title.replaceAll(/\s+/g, '_')}_report.md`);
+
   // Ensure the folder exists
   if (!fs.existsSync(folderPath)) {
     fs.mkdirSync(folderPath, { recursive: true });

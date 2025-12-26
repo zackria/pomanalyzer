@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Generates and saves an HTML table for the given dependencies.
@@ -18,7 +18,7 @@ export const printHTMLTable = (dependencies, duplicateDependencies, title, folde
     th { background-color: #f2f2f2; }
     .duplicate { background-color: #ffcccc; }
   </style>`;
-  
+
   // Maven Dependencies table.
   const depHeaders = Object.keys(dependencies[0] || {});
   const dependenciesTable = `
@@ -38,7 +38,7 @@ export const printHTMLTable = (dependencies, duplicateDependencies, title, folde
       </tbody>
     </table>
   `;
-  
+
   // Duplicate Dependencies table (if any).
   let duplicateTable = '';
   if (duplicateDependencies && duplicateDependencies.length > 0) {
@@ -61,9 +61,9 @@ export const printHTMLTable = (dependencies, duplicateDependencies, title, folde
       </table>
     `;
   }
-  
-  const htmlContent = `
-    <html>
+
+  const htmlContent = `<!DOCTYPE html>
+    <html lang="en">
       <head>
         <meta charset="UTF-8">
         <title>${title} Report</title>
@@ -75,9 +75,9 @@ export const printHTMLTable = (dependencies, duplicateDependencies, title, folde
       </body>
     </html>
   `;
-  
-  const filePath = path.join(folderPath, `${title.replace(/\s+/g, '_')}_report.html`);
-  
+
+  const filePath = path.join(folderPath, `${title.replaceAll(/\s+/g, '_')}_report.html`);
+
   // Ensure the folder exists
   if (!fs.existsSync(folderPath)) {
     fs.mkdirSync(folderPath, { recursive: true });

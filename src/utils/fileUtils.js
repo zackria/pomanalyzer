@@ -1,6 +1,6 @@
 // This file contains utility functions for file operations, such as reading files.
 
-import fs from 'fs';
+import fs from 'node:fs';
 
 /**
  * Reads a file and returns its content.

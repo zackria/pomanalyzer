@@ -26,33 +26,29 @@ export async function readPomXml(filePath) {
  */
 function extractDependencies(result) {
   const dependencies = [];
-  
-  if (!result || !result.project) {
+
+  if (!result?.project) {
     return dependencies;
   }
-  
-  const properties = result.project.properties ? result.project.properties[0] : {};
 
-  if (result.project.dependencies && result.project.dependencies[0] && result.project.dependencies[0].dependency) {
+  const properties = result.project.properties?.[0] ?? {};
+
+  if (result.project.dependencies?.[0]?.dependency) {
     dependencies.push(
       ...result.project.dependencies[0].dependency.map((dep) => ({
-        groupId: dep.groupId ? dep.groupId[0] : 'unknown',
-        artifactId: dep.artifactId ? dep.artifactId[0] : 'unknown',
-        version: resolveVersion(dep.version && dep.version[0] ? dep.version[0] : 'N/A', properties),
+        groupId: dep.groupId?.[0] ?? 'unknown',
+        artifactId: dep.artifactId?.[0] ?? 'unknown',
+        version: resolveVersion(dep.version?.[0] ?? 'N/A', properties),
       }))
     );
   }
 
-  if (result.project.dependencyManagement && 
-      result.project.dependencyManagement[0] && 
-      result.project.dependencyManagement[0].dependencies && 
-      result.project.dependencyManagement[0].dependencies[0] &&
-      result.project.dependencyManagement[0].dependencies[0].dependency) {
+  if (result.project.dependencyManagement?.[0]?.dependencies?.[0]?.dependency) {
     dependencies.push(
       ...result.project.dependencyManagement[0].dependencies[0].dependency.map((dep) => ({
-        groupId: dep.groupId ? dep.groupId[0] : 'unknown',
-        artifactId: dep.artifactId ? dep.artifactId[0] : 'unknown',
-        version: resolveVersion(dep.version && dep.version[0] ? dep.version[0] : 'N/A', properties),
+        groupId: dep.groupId?.[0] ?? 'unknown',
+        artifactId: dep.artifactId?.[0] ?? 'unknown',
+        version: resolveVersion(dep.version?.[0] ?? 'N/A', properties),
       }))
     );
   }

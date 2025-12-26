@@ -2,8 +2,8 @@
 
 import { program } from 'commander';
 import { analyzePom } from './src/index.js';
-import { readFileSync } from 'fs';
-import path from 'path';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
 // Get version from package.json
 let version = '1.0.0';
@@ -12,7 +12,7 @@ try {
   const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
   version = packageJson.version;
 } catch (err) {
-  // Use default version if package.json can't be read
+  console.warn('Warning: Could not read package.json, using default version.');
 }
 
 // Check if no arguments were provided

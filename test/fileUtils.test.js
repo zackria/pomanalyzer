@@ -1,7 +1,7 @@
 import { readFile } from '../src/utils/fileUtils';
-import fs from 'fs';
+import fs from 'node:fs';
 
-jest.mock('fs');
+jest.mock('node:fs');
 
 describe('File Utils', () => {
   const mockFilePath = 'mock/path/to/file.txt';
