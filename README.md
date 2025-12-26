@@ -151,6 +151,5 @@ For more detailed information, please check the [Documentation](DOCUMENTATION.md
 ## Compatibility
 
 Developed and tested with:
-- npm v11.1.0
-- Node.js v22.13.0
-
+- npm v11.7.0
+- Node.js v25.2.1
