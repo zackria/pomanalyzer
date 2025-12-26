@@ -12,7 +12,9 @@ try {
   const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
   version = packageJson.version;
 } catch (err) {
-  console.warn('Warning: Could not read package.json, using default version.');
+  if (err.code !== 'ENOENT') {
+    console.error(`Error reading package.json: ${err.message}`);
+  }
 }
 
 // Check if no arguments were provided
@@ -35,7 +37,7 @@ program
     try {
       // Resolve file path
       const resolvedPath = path.resolve(pomFile);
-      
+
       // Prepare options for analysis
       const analysisOptions = {
         html: options.html,
@@ -46,7 +48,7 @@ program
 
       // Use the centralized analyzePom function
       await analyzePom(resolvedPath, analysisOptions);
-      
+
     } catch (error) {
       console.error('Error:', error.message);
       process.exit(1);
