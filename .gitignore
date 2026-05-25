@@ -8,3 +8,7 @@ build/Release
 node_modules/
 jspm_packages/
 coverage/
+Maven_Dependencies_report.html
+Maven_Dependencies_report.md
+output/Maven_Dependencies_report.html
+output/Maven_Dependencies_report.md
