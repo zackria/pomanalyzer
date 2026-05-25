@@ -2,8 +2,7 @@ import { readPomXml } from '../src/services/dependencyService';
 import { readFile } from '../src/utils/fileUtils';
 import { parseXml } from '../src/utils/xmlParser';
 import { resolveVersion } from '../src/utils/dependencyResolver';
-import { pomDep, wrapDependencies, wrapDependencyManagement, wrapBoth } from './testHelpers';
-import { runReadPom } from './testHelpers';
+import { pomDep, wrapDependencies, wrapDependencyManagement, wrapBoth, runReadPom } from './testHelpers';
 
 jest.mock('../src/utils/fileUtils');
 jest.mock('../src/utils/xmlParser');
