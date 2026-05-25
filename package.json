@@ -1,6 +1,6 @@
 {
   "name": "pomanalyzer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "pomanalyzer is a utility to analyze Apache Maven POM XML file",
   "keywords": [
     "pom",
