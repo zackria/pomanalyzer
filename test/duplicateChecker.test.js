@@ -1,10 +1,11 @@
 import { checkForDuplicates } from '../src/services/duplicateChecker';
+import { dep } from './testHelpers';
 
 describe('checkForDuplicates', () => {
   it('should return an empty array when there are no duplicates', () => {
     const dependencies = [
-      { groupId: 'com.example', artifactId: 'example-artifact', version: '1.0.0' },
-      { groupId: 'org.sample', artifactId: 'sample-artifact', version: '2.0.0' },
+      dep('com.example', 'example-artifact', '1.0.0'),
+      dep('org.sample', 'sample-artifact', '2.0.0'),
     ];
     const result = checkForDuplicates(dependencies);
     expect(result).toEqual([]);
@@ -12,10 +13,10 @@ describe('checkForDuplicates', () => {
 
   it('should identify duplicates based on groupId and artifactId', () => {
     const dependencies = [
-      { groupId: 'com.example', artifactId: 'example-artifact', version: '1.0.0' },
-      { groupId: 'com.example', artifactId: 'example-artifact', version: '1.1.0' },
-      { groupId: 'org.sample', artifactId: 'sample-artifact', version: '2.0.0' },
-      { groupId: 'org.sample', artifactId: 'sample-artifact', version: '2.1.0' },
+      dep('com.example', 'example-artifact', '1.0.0'),
+      dep('com.example', 'example-artifact', '1.1.0'),
+      dep('org.sample', 'sample-artifact', '2.0.0'),
+      dep('org.sample', 'sample-artifact', '2.1.0'),
     ];
     const result = checkForDuplicates(dependencies);
     
@@ -31,8 +32,8 @@ describe('checkForDuplicates', () => {
 
   it('should not consider different artifactIds as duplicates even with same groupId', () => {
     const dependencies = [
-      { groupId: 'com.example', artifactId: 'example-artifact-1', version: '1.0.0' },
-      { groupId: 'com.example', artifactId: 'example-artifact-2', version: '1.0.0' },
+      dep('com.example', 'example-artifact-1', '1.0.0'),
+      dep('com.example', 'example-artifact-2', '1.0.0'),
     ];
     const result = checkForDuplicates(dependencies);
     expect(result).toEqual([]);
@@ -40,8 +41,8 @@ describe('checkForDuplicates', () => {
 
   it('should not consider different groupIds as duplicates even with same artifactId', () => {
     const dependencies = [
-      { groupId: 'com.example1', artifactId: 'example-artifact', version: '1.0.0' },
-      { groupId: 'com.example2', artifactId: 'example-artifact', version: '1.0.0' },
+      dep('com.example1', 'example-artifact', '1.0.0'),
+      dep('com.example2', 'example-artifact', '1.0.0'),
     ];
     const result = checkForDuplicates(dependencies);
     expect(result).toEqual([]);
@@ -55,9 +56,9 @@ describe('checkForDuplicates', () => {
 
   it('should include multiple versions in the duplicate groups', () => {
     const dependencies = [
-      { groupId: 'com.example', artifactId: 'example-artifact', version: '1.0.0' },
-      { groupId: 'com.example', artifactId: 'example-artifact', version: '1.1.0' },
-      { groupId: 'com.example', artifactId: 'example-artifact', version: '1.2.0' },
+      dep('com.example', 'example-artifact', '1.0.0'),
+      dep('com.example', 'example-artifact', '1.1.0'),
+      dep('com.example', 'example-artifact', '1.2.0'),
     ];
     const result = checkForDuplicates(dependencies);
     

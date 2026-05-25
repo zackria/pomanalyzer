@@ -2,6 +2,7 @@ import { readPomXml } from '../src/services/dependencyService';
 import { readFile } from '../src/utils/fileUtils';
 import { parseXml } from '../src/utils/xmlParser';
 import { resolveVersion } from '../src/utils/dependencyResolver';
+import { pomDep, wrapDependencies, wrapDependencyManagement, wrapBoth, wrapProperties } from './testHelpers';
 
 jest.mock('../src/utils/fileUtils');
 jest.mock('../src/utils/xmlParser');
@@ -18,22 +19,12 @@ describe('Dependency Service', () => {
   });
 
   it('should read and parse pom.xml file correctly with regular dependencies', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencies: [{
-          dependency: [
-            {
-              groupId: ['com.example'],
-              artifactId: ['example-artifact'],
-              version: ['1.0.0']
-            }
-          ]
-        }]
-      }
-    };
-    parseXml.mockResolvedValue(mockParsedXml);
+      const mockParsedXml = wrapDependencies([
+        pomDep('com.example', 'example-artifact', '1.0.0'),
+      ]);
+      parseXml.mockResolvedValue(mockParsedXml);
 
-    const dependencies = await readPomXml(mockFilePath);
+      const dependencies = await readPomXml(mockFilePath);
     expect(readFile).toHaveBeenCalledWith(mockFilePath);
     expect(parseXml).toHaveBeenCalledWith(mockXmlContent);
     expect(dependencies).toEqual([
@@ -42,21 +33,9 @@ describe('Dependency Service', () => {
   });
 
   it('should handle dependency management section', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencyManagement: [{
-          dependencies: [{
-            dependency: [
-              {
-                groupId: ['org.managed'],
-                artifactId: ['managed-artifact'],
-                version: ['2.0.0']
-              }
-            ]
-          }]
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencyManagement([
+      pomDep('org.managed', 'managed-artifact', '2.0.0'),
+    ]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
@@ -66,30 +45,11 @@ describe('Dependency Service', () => {
   });
 
   it('should handle both regular dependencies and dependency management', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencies: [{
-          dependency: [
-            {
-              groupId: ['com.example'],
-              artifactId: ['example-artifact'],
-              version: ['1.0.0']
-            }
-          ]
-        }],
-        dependencyManagement: [{
-          dependencies: [{
-            dependency: [
-              {
-                groupId: ['org.managed'],
-                artifactId: ['managed-artifact'],
-                version: ['2.0.0']
-              }
-            ]
-          }]
-        }]
-      }
-    };
+    const mockParsedXml = wrapBoth([
+      pomDep('com.example', 'example-artifact', '1.0.0'),
+    ], [
+      pomDep('org.managed', 'managed-artifact', '2.0.0'),
+    ]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
@@ -99,29 +59,11 @@ describe('Dependency Service', () => {
   });
 
   it('should handle dependencies with missing fields', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencies: [{
-          dependency: [
-            {
-              // Missing groupId
-              artifactId: ['example-artifact'],
-              version: ['1.0.0']
-            },
-            {
-              groupId: ['com.example'],
-              // Missing artifactId
-              version: ['1.0.0']
-            },
-            {
-              groupId: ['com.example2'],
-              artifactId: ['example-artifact2']
-              // Missing version
-            }
-          ]
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencies([
+      pomDep(undefined, 'example-artifact', '1.0.0'),
+      pomDep('com.example', undefined, '1.0.0'),
+      pomDep('com.example2', 'example-artifact2', undefined),
+    ]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
@@ -133,20 +75,10 @@ describe('Dependency Service', () => {
   });
 
   it('should handle property resolution in versions', async () => {
-    const mockParsedXml = {
-      project: {
-        properties: [{ 'project.version': ['3.0.0'] }],
-        dependencies: [{
-          dependency: [
-            {
-              groupId: ['com.example'],
-              artifactId: ['example-artifact'],
-              version: ['${project.version}']
-            }
-          ]
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencies([
+      pomDep('com.example', 'example-artifact', '${project.version}'),
+    ]);
+    mockParsedXml.project.properties = [{ 'project.version': ['3.0.0'] }];
     parseXml.mockResolvedValue(mockParsedXml);
     resolveVersion.mockImplementation((version) => version === '${project.version}' ? '3.0.0' : version);
 
@@ -180,13 +112,7 @@ describe('Dependency Service', () => {
   });
 
   it('should handle empty dependencies array in project', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencies: [{
-          dependency: []
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencies([]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
@@ -194,15 +120,7 @@ describe('Dependency Service', () => {
   });
 
   it('should handle empty dependencyManagement array in project', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencyManagement: [{
-          dependencies: [{
-            dependency: []
-          }]
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencyManagement([]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
@@ -210,19 +128,9 @@ describe('Dependency Service', () => {
   });
 
   it('should handle missing dependencyManagement section', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencies: [{
-          dependency: [
-            {
-              groupId: ['com.example'],
-              artifactId: ['example-artifact'],
-              version: ['1.0.0']
-            }
-          ]
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencies([
+      pomDep('com.example', 'example-artifact', '1.0.0'),
+    ]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
@@ -232,21 +140,9 @@ describe('Dependency Service', () => {
   });
 
   it('should handle missing dependencies section', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencyManagement: [{
-          dependencies: [{
-            dependency: [
-              {
-                groupId: ['org.managed'],
-                artifactId: ['managed-artifact'],
-                version: ['2.0.0']
-              }
-            ]
-          }]
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencyManagement([
+      pomDep('org.managed', 'managed-artifact', '2.0.0'),
+    ]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
@@ -287,19 +183,9 @@ describe('Dependency Service', () => {
   });
 
   it('should handle null version in dependency', async () => {
-    const mockParsedXml = {
-      project: {
-        dependencies: [{
-          dependency: [
-            {
-              groupId: ['com.example'],
-              artifactId: ['example-artifact'],
-              version: [null]
-            }
-          ]
-        }]
-      }
-    };
+    const mockParsedXml = wrapDependencies([
+      pomDep('com.example', 'example-artifact', null),
+    ]);
     parseXml.mockResolvedValue(mockParsedXml);
 
     const dependencies = await readPomXml(mockFilePath);
