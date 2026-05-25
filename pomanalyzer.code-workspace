@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"chat.tools.terminal.autoApprove": {
+			"npm audit": true,
+			"/^git add test/testHelpers\\.js test/dependencyService\\.test\\.js && git commit -m \"tests: add runReadPom helper and refactor dependencyService tests to reduce duplication\" \\|\\| true$/": {
+				"approve": true,
+				"matchCommandLine": true
+			},
+			"git add": true,
+			"git commit": true,
+			"true": true
+		}
+	}
+}
