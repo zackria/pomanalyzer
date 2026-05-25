@@ -32,3 +32,8 @@ export const wrapBoth = (depsArray, managedArray) => ({
 });
 
 export const wrapProperties = (props) => ({ project: { properties: [props] } });
+
+export async function runReadPom(parseXmlMock, mockParsedXml, readPomFn, mockFilePath = 'mock/path/to/pom.xml') {
+  parseXmlMock.mockResolvedValue(mockParsedXml);
+  return await readPomFn(mockFilePath);
+}
