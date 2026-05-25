@@ -2,7 +2,7 @@ import { readPomXml } from '../src/services/dependencyService';
 import { readFile } from '../src/utils/fileUtils';
 import { parseXml } from '../src/utils/xmlParser';
 import { resolveVersion } from '../src/utils/dependencyResolver';
-import { pomDep, wrapDependencies, wrapDependencyManagement, wrapBoth, runReadPom } from './testHelpers';
+import { pomDep, wrapDependencies, wrapDependencyManagement, wrapBoth, runReadPom, assertReadPomEquals } from './testHelpers';
 
 jest.mock('../src/utils/fileUtils');
 jest.mock('../src/utils/xmlParser');
@@ -34,10 +34,9 @@ describe('Dependency Service', () => {
     const mockParsedXml = wrapDependencyManagement([
       pomDep('org.managed', 'managed-artifact', '2.0.0'),
     ]);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([
+    await assertReadPomEquals(parseXml, mockParsedXml, [
       { groupId: 'org.managed', artifactId: 'managed-artifact', version: '2.0.0' }
-    ]);
+    ], readPomXml, mockFilePath);
   });
 
   it('should handle both regular dependencies and dependency management', async () => {
@@ -58,12 +57,11 @@ describe('Dependency Service', () => {
       pomDep('com.example', undefined, '1.0.0'),
       pomDep('com.example2', 'example-artifact2', undefined),
     ]);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([
+    await assertReadPomEquals(parseXml, mockParsedXml, [
       { groupId: 'unknown', artifactId: 'example-artifact', version: '1.0.0' },
       { groupId: 'com.example', artifactId: 'unknown', version: '1.0.0' },
       { groupId: 'com.example2', artifactId: 'example-artifact2', version: 'N/A' }
-    ]);
+    ], readPomXml, mockFilePath);
   });
 
   it('should handle property resolution in versions', async () => {
@@ -72,20 +70,17 @@ describe('Dependency Service', () => {
     ]);
     mockParsedXml.project.properties = [{ 'project.version': ['3.0.0'] }];
     resolveVersion.mockImplementation((version) => version === '${project.version}' ? '3.0.0' : version);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([
+    await assertReadPomEquals(parseXml, mockParsedXml, [
       { groupId: 'com.example', artifactId: 'example-artifact', version: '3.0.0' }
-    ]);
+    ], readPomXml, mockFilePath);
   });
 
   it('should return empty array if no project element in XML', async () => {
-    const dependencies = await runReadPom(parseXml, {}, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([]);
+    await assertReadPomEquals(parseXml, {}, [], readPomXml, mockFilePath);
   });
 
   it('should return empty array if no dependencies in project', async () => {
-    const dependencies = await runReadPom(parseXml, { project: {} }, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([]);
+    await assertReadPomEquals(parseXml, { project: {} }, [], readPomXml, mockFilePath);
   });
 
   it('should handle errors when reading the file', async () => {
@@ -101,34 +96,30 @@ describe('Dependency Service', () => {
 
   it('should handle empty dependencies array in project', async () => {
     const mockParsedXml = wrapDependencies([]);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([]);
+    await assertReadPomEquals(parseXml, mockParsedXml, [], readPomXml, mockFilePath);
   });
 
   it('should handle empty dependencyManagement array in project', async () => {
     const mockParsedXml = wrapDependencyManagement([]);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([]);
+    await assertReadPomEquals(parseXml, mockParsedXml, [], readPomXml, mockFilePath);
   });
 
   it('should handle missing dependencyManagement section', async () => {
     const mockParsedXml = wrapDependencies([
       pomDep('com.example', 'example-artifact', '1.0.0'),
     ]);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([
+    await assertReadPomEquals(parseXml, mockParsedXml, [
       { groupId: 'com.example', artifactId: 'example-artifact', version: '1.0.0' }
-    ]);
+    ], readPomXml, mockFilePath);
   });
 
   it('should handle missing dependencies section', async () => {
     const mockParsedXml = wrapDependencyManagement([
       pomDep('org.managed', 'managed-artifact', '2.0.0'),
     ]);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([
+    await assertReadPomEquals(parseXml, mockParsedXml, [
       { groupId: 'org.managed', artifactId: 'managed-artifact', version: '2.0.0' }
-    ]);
+    ], readPomXml, mockFilePath);
   });
 
   it('should handle missing properties section', async () => {
@@ -146,25 +137,22 @@ describe('Dependency Service', () => {
       }
     };
     resolveVersion.mockImplementation((version) => version === '${project.version}' ? 'N/A' : version);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([
+    await assertReadPomEquals(parseXml, mockParsedXml, [
       { groupId: 'com.example', artifactId: 'example-artifact', version: 'N/A' }
-    ]);
+    ], readPomXml, mockFilePath);
   });
 
   it('should handle empty project object', async () => {
     const mockParsedXml = { project: {} };
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([]);
+    await assertReadPomEquals(parseXml, mockParsedXml, [], readPomXml, mockFilePath);
   });
 
   it('should handle null version in dependency', async () => {
     const mockParsedXml = wrapDependencies([
       pomDep('com.example', 'example-artifact', null),
     ]);
-    const dependencies = await runReadPom(parseXml, mockParsedXml, readPomXml, mockFilePath);
-    expect(dependencies).toEqual([
+    await assertReadPomEquals(parseXml, mockParsedXml, [
       { groupId: 'com.example', artifactId: 'example-artifact', version: 'N/A' }
-    ]);
+    ], readPomXml, mockFilePath);
   });
 });

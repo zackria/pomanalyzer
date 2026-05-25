@@ -37,3 +37,9 @@ export async function runReadPom(parseXmlMock, mockParsedXml, readPomFn, mockFil
   parseXmlMock.mockResolvedValue(mockParsedXml);
   return await readPomFn(mockFilePath);
 }
+
+export async function assertReadPomEquals(parseXmlMock, mockParsedXml, expected, readPomFn, mockFilePath = 'mock/path/to/pom.xml') {
+  parseXmlMock.mockResolvedValue(mockParsedXml);
+  const deps = await readPomFn(mockFilePath);
+  expect(deps).toEqual(expected);
+}
